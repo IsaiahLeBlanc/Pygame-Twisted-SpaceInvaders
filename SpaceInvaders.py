@@ -21,6 +21,7 @@ class GameSpace:
         self.loss=0
         pygame.mixer.init()
         i=0
+	self.num_Players=1
         self.playerList=[]
         self.LaserList=[]
         self.InvaderList = []
@@ -28,9 +29,9 @@ class GameSpace:
         self.screen = pygame.display.set_mode(self.size)
         self.clock = pygame.time.Clock()
         self.player = Player.Player(self)
-        self.player2 = Player.Player2(self)
+        #self.player2 = Player.Player2(self)
         self.playerList.append(self.player)
-        self.playerList.append(self.player2)
+        #self.playerList.append(self.player2)
         self.level=1
         self.GameOver = self.lfont.render('GAME OVER',0,(255,255,255))
         self.player1wins = self.font.render('Player 1 wins: ',0,(255,255,255))
@@ -42,15 +43,16 @@ class GameSpace:
         self.player2Score = self.font.render('Player 2 Score: ',0,(255,255,255))
         self.player1S = self.font.render(str(self.player.score),0,(255,255,255))
         self.player1HP = self.font.render(str(self.player.health),0,(255,255,255))
-        self.player2S = self.font.render(str(self.player2.score),0,(255,255,255))
-        self.player2HP = self.font.render(str(self.player2.health),0,(255,255,255))
+       	self.add_Player()
+	#self.player2S = self.font.render(str(self.player2.score),0,(255,255,255))
+        #self.player2HP = self.font.render(str(self.player2.health),0,(255,255,255))
         self.init_Invaders()
         while 1:
                     # 4) clock tick regulation (framerate)
             if self.check_win():
                 self.level=self.level+1
                 self.player2.health=self.player2.health+3000
-                self.player1.health=self.player1.health+3000
+                self.player.health=self.player.health+3000
                 self.init_Invaders()
             if self.player.health==0 and self.player2.health==0:
                 self.loss=1
@@ -59,21 +61,22 @@ class GameSpace:
                 self.screen.fill(self.black)
                 self.screen.blit(self.GameOver,(300,350))
                 self.screen.blit(self.player1Score,(300,400))
-                self.screen.blit(self.player2Score,(300,425))
+                #self.screen.blit(self.player2Score,(300,425))
                 self.player1S = self.font.render(str(self.player.score),0,(255,255,255))
                 self.player2S = self.font.render(str(self.player2.score),0,(255,255,255))
                 self.screen.blit(self.player1S,(400,400))
-                self.screen.blit(self.player2S,(400,425))
-                if self.player2.score>self.player.score:
-                    self.screen.blit(self.player2wins,(400,450))
-                elif self.player2.score<self.player.score:
-                    self.screen.blit(self.player2wins,(400,450))
-                else:
-                    self.screen.blit(self.draw,(400,450))
+		if self.num_Players == 2:
+                	self.screen.blit(self.player2S,(400,425))
+                	if self.player2.score>self.player.score:
+                    		self.screen.blit(self.player2wins,(400,450))
+                	elif self.player2.score<self.player.score:
+                    		self.screen.blit(self.player2wins,(400,450))
+                	else:
+                    		self.screen.blit(self.draw,(400,450))
                 for event in pygame.event.get():
-                    if event.type == pygame.QUIT:
-                        pygame.quit()
-                        sys.exit()
+                    	if event.type == pygame.QUIT:
+                        	pygame.quit()
+                        	sys.exit()
                 pygame.display.flip()
                 continue
             self.clock.tick(60)
@@ -91,7 +94,8 @@ class GameSpace:
             self.screen.fill(self.black)
             if len(self.LaserList)==0:
                 self.player.bullet=0
-                self.player2.bullet=0
+		if self.num_Players==2:
+                	self.player2.bullet=0
             self.check_edges()
             for invader in self.InvaderList:
                 invader.move(i,self.level)
@@ -121,17 +125,19 @@ class GameSpace:
                     self.screen.blit(player.image, player.rect)
             self.screen.blit(self.player1Health,(0,650))
             self.screen.blit(self.player1Score,(0,665))
-            self.screen.blit(self.player2Health,(550,650))
-            self.screen.blit(self.player2Score,(550,665))
+	    if self.num_Players == 2:
+            	self.screen.blit(self.player2Health,(550,650))
+            	self.screen.blit(self.player2Score,(550,665))
             self.player1S = self.font.render(str(self.player.score),0,(255,255,255))
 
             self.player1HP = self.font.render(str(self.player.health),0,(255,255,255))
             self.screen.blit(self.player1HP,(100,650))
             self.screen.blit(self.player1S,(100,665))
-            self.player2S = self.font.render(str(self.player2.score),0,(255,255,255))
-            self.player2HP = self.font.render(str(self.player2.health),0,(255,255,255))
-            self.screen.blit(self.player2HP,(650,650))
-            self.screen.blit(self.player2S,(650,665))
+	    if self.num_Players == 2:
+            	self.player2S = self.font.render(str(self.player2.score),0,(255,255,255))
+            	self.player2HP = self.font.render(str(self.player2.health),0,(255,255,255))
+            	self.screen.blit(self.player2HP,(650,650))
+            	self.screen.blit(self.player2S,(650,665))
             pygame.display.flip()
     def addLaser(self,laser):
         self.LaserList.append(laser)
@@ -183,6 +189,11 @@ class GameSpace:
                 x=x+20
             y=y-20
             x=10
+    def add_Player(self):
+	self.player2 = Player.Player2(self)
+        self.playerList.append(self.player2)
+	self.num_Players=2
+
 if __name__ == '__main__':
     gs = GameSpace()
     gs.main()
